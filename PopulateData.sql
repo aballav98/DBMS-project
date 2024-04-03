@@ -167,6 +167,8 @@ INSERT INTO base_price
 (BP_Size, BP_Crust, BP_Price, BP_Cost)
 values('XLarge', 'Gluten-Free', 12.5, 6);
 
+
+
 INSERT INTO `order`
 (Ord_Date, Ord_Time, Ord_Type, Ord_Price, Ord_Cost)
 values ('2024-03-05', '12:03', 'dine-in', 20.75, 3.68);
@@ -412,7 +414,7 @@ values (12, 13 , False);
 INSERT INTO delivery
 VALUES (4,1);
 
-INSERT INTO order_discount VALUES(4,4);
+INSERT INTO order_discount VALUES(6,4);
 
 
 
@@ -490,22 +492,12 @@ VALUES (2, 13, 'completed', 9, 7);
 INSERT INTO pizza_topping 
 values (15, 13 , True);
 
-INSERT INTO pizza_topping 
-values (15, 12 , False);
-
-INSERT INTO pizza_topping 
-values (15, 1, True);
-
-
-
 
 INSERT INTO pizza 
 (Pizza_Cost, Pizza_Price, Pizza_State, BP_ID, Ord_ID)
 VALUES (3.25, 19.25, 'completed', 9, 7);
 
 
-INSERT INTO pizza_topping 
-values (16, 13 , True);
 
 INSERT INTO pizza_topping 
 values (16, 12 , False);
