@@ -1,5 +1,5 @@
 -- topping table
-
+--Amith Bv
 INSERT INTO topping
  (T_Name, T_Price, T_Cost, Curr_Inv_Level, Min_Inv_Level, T_Personal,  T_Medium,  T_Large, T_XLarge)
  values('Pepperoni', 1.25, 0.2, 100, 50, 2, 2.75, 3.5, 4.5);
