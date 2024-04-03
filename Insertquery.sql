@@ -106,7 +106,7 @@ values('Small', 'Pan', 3.5, 1);
 
 INSERT INTO base_price
 (BP_Size, BP_Crust, BP_Price, BP_Cost)
-values('Small', 'Glutten-Free', 4, 2);
+values('Small', 'Gluten-Free', 4, 2);
 
 INSERT INTO base_price
 (BP_Size, BP_Crust, BP_Price, BP_Cost)
@@ -122,8 +122,41 @@ values('Medium', 'Pan', 6, 2.25);
 
 INSERT INTO base_price
 (BP_Size, BP_Crust, BP_Price, BP_Cost)
-values('Medium', 'Glutem-Free', 6.25, 3);
+values('Medium', 'Gluten-Free', 6.25, 3);
+
 
 INSERT INTO base_price
 (BP_Size, BP_Crust, BP_Price, BP_Cost)
-values('Small', 'Original', 3, 0.75);
+values('Large', 'Thin', 8, 1.25);
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('Large', 'Original', 8, 2);
+
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('Large', 'Pan', 9, 3);
+
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('Large', 'Gluten-Free', 9.5, 4);
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('XLarge', 'Thin', 10, 2);
+
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('XLarge', 'Original', 10, 3);
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('XLarge', 'Pan', 11.5, 4.5);
+
+
+INSERT INTO base_price
+(BP_Size, BP_Crust, BP_Price, BP_Cost)
+values('XLarge', 'Gluten-Free', 12.5, 6);

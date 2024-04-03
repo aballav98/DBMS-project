@@ -48,7 +48,7 @@ CREATE TABLE `order` (
 
 CREATE TABLE base_price (
   BP_ID INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
-  BP_Size INT NOT NULL,
+  BP_Size varchar(30) NOT NULL,
   BP_Crust varchar(20) NOT NULL,
   BP_Price DECIMAL(4,2),
   BP_Cost DECIMAL(4,2)
