@@ -1,3 +1,4 @@
+
 show tables;
 drop table  pizza_topping;
 drop table order_discount;

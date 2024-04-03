@@ -28,22 +28,23 @@ CREATE TABLE discount (
 
 create table customer(
 Cus_ID int not null primary key AUTO_INCREMENT,
-Cus_Fname varchar(20) not null,
-Cus_Lname varchar(20) not null,
-Cus_PhoneNumber varchar(10) not null,
-Cus_Email_Id varchar(15) not null,
-Cus_Street_Address varchar(20) not null,
-Cus_State char(2) not null,
-Cus_ZipCode varchar(6) not null
+Cus_Fname varchar(20),
+Cus_Lname varchar(20),
+Cus_PhoneNumber varchar(10),
+Cus_Email_Id varchar(15),
+Cus_Street_Address varchar(40),
+Cus_State char(2),
+Cus_ZipCode varchar(6) 
 );
 
 
 CREATE TABLE `order` (
   Ord_ID int not null primary key AUTO_INCREMENT,
+  Ord_Date date,
   Ord_Time time not null,
   Ord_Type varchar(10) not null,
-  Ord_Cost decimal(5,2) not null,
-  Ord_Price decimal(5,2) not null
+  Ord_Price decimal(5,2) not null,
+  Ord_Cost decimal(5,2) not null
 );
 
 CREATE TABLE base_price (
@@ -104,7 +105,7 @@ CREATE TABLE order_discount (
 
 
 CREATE TABLE pizza_discount (
- Discount_ID INT NOT NULL AUTO_INCREMENT,
+ Discount_ID INT NOT NULL,
   Pizza_ID INT NOT NULL,
   PRIMARY KEY(Discount_ID, Pizza_ID),
   FOREIGN KEY(Discount_ID) REFERENCES discount(Discount_ID) ON UPDATE CASCADE ON DELETE CASCADE,
@@ -113,9 +114,9 @@ CREATE TABLE pizza_discount (
 
 
 CREATE TABLE pizza_topping (
-  Pizza_ID INT NOT NULL AUTO_INCREMENT,
+  Pizza_ID INT NOT NULL,
   T_ID TINYINT NOT NULL,
-  Extra_Topping varchar(15) NULL,
+  Extra_Topping boolean NULL,
   PRIMARY KEY(Pizza_ID, T_ID),
   FOREIGN KEY(Pizza_ID) REFERENCES pizza(Pizza_ID) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY(T_ID) REFERENCES topping(T_ID) ON UPDATE CASCADE ON DELETE CASCADE 
