@@ -7,10 +7,10 @@ Show tables;
 CREATE TABLE topping (
   T_ID TINYINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   T_Name VARCHAR(30) NOT NULL,
-   T_Price DECIMAL(4,2) NOT NULL,
+  T_Price DECIMAL(4,2) NOT NULL,
   T_Cost DECIMAL(4,2) NOT NULL, 
-   Curr_Inv_Level INT NOT NULL,
-    Min_Inv_Level INT NOT NULL,
+  Curr_Inv_Level INT NOT NULL,
+  Min_Inv_Level INT NOT NULL,
   T_Personal INT  NOT NULL,
   T_Medium INT NOT NULL,
   T_Large INT NOT NULL,
