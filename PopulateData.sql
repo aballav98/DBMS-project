@@ -1,5 +1,3 @@
--- topping table
-
 INSERT INTO topping
  (T_Name, T_Price, T_Cost, Curr_Inv_Level, Min_Inv_Level, T_Personal,  T_Medium,  T_Large, T_XLarge)
  values('Pepperoni', 1.25, 0.2, 100, 50, 2, 2.75, 3.5, 4.5);
@@ -70,7 +68,6 @@ INSERT INTO topping
  (T_Name, T_Price, T_Cost, Curr_Inv_Level, Min_Inv_Level, T_Personal,  T_Medium,  T_Large, T_XLarge)
  values('Ham', 1.5, 0.15, 78, 25, 2, 2.5, 3.25, 4);
 
--- discount table
 
 INSERT INTO discount
 (Discount_Name,Percent_Off,Amount_Off)

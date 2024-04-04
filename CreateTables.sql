@@ -1,9 +1,3 @@
-
-drop database Pizza;
-Create database Pizza;
-use Pizza;
-Show tables;
-
 CREATE TABLE topping (
   T_ID TINYINT NOT NULL PRIMARY KEY AUTO_INCREMENT,
   T_Name VARCHAR(30) NOT NULL,
