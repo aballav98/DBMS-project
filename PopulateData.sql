@@ -200,7 +200,7 @@ values (1, 12 , True);
 
 INSERT INTO `order`
 (Ord_Date, Ord_Time, Ord_Type, Ord_Price, Ord_Cost)
-values ('2024-04-03', '12:05', 'dine-in', 6.93, 1.40);
+values ('2024-04-03', '12:05', 'dine-in', 19.78, 4.63);
 
 INSERT INTO pizza 
 (Pizza_Cost, Pizza_Price, Pizza_State, BP_ID, Ord_ID)
@@ -247,7 +247,7 @@ INSERT INTO dine_in VALUES
 
 INSERT INTO `order`
 (Ord_Date, Ord_Time, Ord_Type, Ord_Price, Ord_Cost)
-values ('2024-03-03', '9:30', 'Pick-Up', 14.88, 3.30);
+values ('2024-03-03', '9:30', 'Pick-Up', 89.28, 19.8);
 
 
 INSERT INTO pizza 
@@ -352,7 +352,7 @@ values (9, 1 , False);
 
 INSERT INTO `order`
 (Ord_Date, Ord_Time, Ord_Type, Ord_Price, Ord_Cost)
-values ('2024-04-20', '7:11', 'delivery', 26.75, 8.18);
+values ('2024-04-20', '7:11', 'delivery', 86.19, 23.62);
 
 
 INSERT INTO pizza 
@@ -480,7 +480,7 @@ VALUES (6,3);
 
 INSERT INTO `order`
 (Ord_Date, Ord_Time, Ord_Type, Ord_Price, Ord_Cost)
-values ('2024-04-13', '8:32', 'delivery', 19.25, 3.25);
+values ('2024-04-13', '8:32', 'delivery', 32.25, 5.25);
 
 INSERT INTO pizza 
 (Pizza_Cost, Pizza_Price, Pizza_State, BP_ID, Ord_ID)
