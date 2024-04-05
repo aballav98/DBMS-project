@@ -1,4 +1,4 @@
-CREATE VIEW ToppingPopularity AS (SELECT T_Name, sum(ToppingCount) AS ToppingCount from  
+CREATE VIEW ToppingPopularity AS SELECT T_Name, sum(ToppingCount) AS ToppingCount from  
 ((SELECT 
 T_NAME, 
 COUNT(T_NAME)*2 AS ToppingCount
@@ -25,7 +25,7 @@ RIGHT OUTER JOIN topping t ON pt.T_ID = t.T_ID
 WHERE pt.T_ID IS NULL 
 GROUP BY(T_NAME))) AS A 
 GROUP BY T_Name
-ORDER BY ToppingCount DESC);
+ORDER BY ToppingCount DESC;
 
 CREATE VIEW ProfitByPizza as SELECT BP_Size AS Size, BP_Crust AS Crust, ROUND(SUM(Pizza_Price) - SUM(Pizza_Cost) - SUM(Discount),2) as Profit,date_format(max(OM),'%m/%Y') AS 'Order Month'
 FROM
