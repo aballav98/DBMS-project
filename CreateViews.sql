@@ -40,7 +40,7 @@ GROUP BY pizza.Pizza_ID) AS DERIVED
 GROUP BY BP_ID
 Order By Profit;
 
-CREATE VIEW ProfitByOrderType as SELECT Ord_Type AS CustomerType,date_format(max(OM),'%m/%Y') AS 'Order Month', ROUND(SUM(Pizza_Price-Discount),2) AS TotalOrderPrice, Round(SUM(Pizza_Cost),2) AS TotalOrderCost, ROUND(SUM(Pizza_Price-Discount) - SUM(Pizza_Cost),2) AS Profit
+CREATE VIEW ProfitByOrderType as (SELECT Ord_Type AS CustomerType,date_format(max(OM),'%m/%Y') AS 'Order Month', ROUND(SUM(Pizza_Price-Discount),2) AS TotalOrderPrice, Round(SUM(Pizza_Cost),2) AS TotalOrderCost, ROUND(SUM(Pizza_Price-Discount) - SUM(Pizza_Cost),2) AS Profit
 FROM
 (SELECT  Ord_Type,Ord_Date, Pizza_Cost,Pizza_Price,max(`order`.Ord_Date) as OM, SUM(IF(a.Amount_Off is not null, a.Amount_Off, 0)+IF(b.Percent_off is not null, Pizza_Price*(b.Percent_off)/100, 0)) AS Discount
 FROM base_price join pizza on base_price.BP_ID=pizza.BP_ID
@@ -64,4 +64,4 @@ JOIN `order` on `order`.Ord_ID = pizza.Ord_ID
 LEFT OUTER JOIN order_discount ON `order`.Ord_ID = order_discount.Ord_ID
 LEFT OUTER JOIN discount as b on b.Discount_ID = order_discount.Discount_ID
 GROUP BY pizza.Pizza_ID) AS D
-GROUP BY Ord_Type) AS M;
+GROUP BY Ord_Type) AS M);

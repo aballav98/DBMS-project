@@ -266,26 +266,26 @@ values (4, 1 , False);
 INSERT INTO customer 
 (Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
 Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Andrew', 'Wilkes-Krier', 864-254-5861, null,
+VALUES ('Andrew', 'Wilkes-Krier', 8642545861, null,
  '115 Party Blvd', 'SC', '29621');
  
  INSERT INTO customer 
 (Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
 Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Matt', 'Engers', 864-474-9953, null,
+VALUES ('Matt', 'Engers', 8644749953, null,
  null, null, null);
  
  INSERT INTO customer 
 (Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
-Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Frank', 'Turner', 864-232-8944, null,
+Cus_Street_Address,  Cus_State, Cus_ZipCode)
+VALUES ('Frank', 'Turner', 8642328944, null,
  '6745 Wessex St Anderson' ,'SC' , '29621');
  
  
  INSERT INTO customer 
 (Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
 Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Milo', 'Auckerman', 864-878-5679, null,
+VALUES ('Milo', 'Auckerman', 8648785679, null,
  '8879 Suburban Home, Anderson,' ,'SC' , '29621');
  
  

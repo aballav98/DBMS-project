@@ -1,3 +1,4 @@
+use pizza;
 drop table  pizza_topping;
 drop table order_discount;
 drop table  pizza_discount;

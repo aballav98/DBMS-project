@@ -1,3 +1,4 @@
+use pizza;
 select * from  topping;
 select * from  discount;
 select * from  customer;

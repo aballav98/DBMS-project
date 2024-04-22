@@ -5,10 +5,10 @@ CREATE TABLE topping (
   T_Cost DECIMAL(4,2) NOT NULL, 
   Curr_Inv_Level INT NOT NULL,
   Min_Inv_Level INT NOT NULL,
-  T_Personal INT  NOT NULL,
-  T_Medium INT NOT NULL,
-  T_Large INT NOT NULL,
-  T_XLarge INT NOT NULL  
+  T_Personal DECIMAL(4,2)  NOT NULL,
+  T_Medium DECIMAL(4,2) NOT NULL,
+  T_Large DECIMAL(4,2) NOT NULL,
+  T_XLarge DECIMAL(4,2) NOT NULL  
 );
 
 
@@ -27,7 +27,7 @@ Cus_Lname varchar(20),
 Cus_PhoneNumber varchar(10),
 Cus_Email_Id varchar(15),
 Cus_Street_Address varchar(40),
-Cus_State char(2),
+Cus_State char(20),
 Cus_ZipCode varchar(6) 
 );
 
@@ -35,6 +35,7 @@ Cus_ZipCode varchar(6)
 CREATE TABLE `order` (
   Ord_ID int not null primary key AUTO_INCREMENT,
   Ord_Date date,
+  Ord_State bool,
   Ord_Time time not null,
   Ord_Type varchar(10) not null,
   Ord_Price decimal(5,2) not null,
