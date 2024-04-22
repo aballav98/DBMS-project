@@ -63,14 +63,15 @@ public final class DBNinja {
 	public static void addOrder(Order o) throws SQLException, IOException 
 	{
 		connect_to_db();
-		String query = "Insert into `order`(Ord_Date,Ord_Time,Ord_Type,Ord_Price,Ord_Cost) values(?,?,?,?,?); ";
+		String query = "Insert into `order`(Ord_Date,Ord_Time,Ord_State,Ord_Type,Ord_Price,Ord_Cost) values(?,?,?,?,?,?); ";
 		PreparedStatement os;
 		os = conn.prepareStatement(query);
 		os.setString(1, o.getDate());
 		os.setString(2, LocalTime.now().toString());
-		os.setString(3, o.getOrderType());
-		os.setDouble(4, o.getCustPrice());
-		os.setDouble(5, o.getBusPrice());
+		os.setInt(3, o.getIsComplete());
+		os.setString(4, o.getOrderType());
+		os.setDouble(5, o.getCustPrice());
+		os.setDouble(6, o.getBusPrice());
 		os.execute();
 		conn.close();
 	}
@@ -105,7 +106,6 @@ public final class DBNinja {
 	
 	public static void addPizza(Pizza p) throws SQLException, IOException
 	{
-		connect_to_db();
 		/*
 		 * Add the code needed to insert the pizza into into the database.
 		 * Keep in mind adding pizza discounts and toppings associated with the pizza,
@@ -266,7 +266,7 @@ public final class DBNinja {
 		 * Find the specifed order in the database and mark that order as complete in the database.
 		 * 
 		 */
-		String query = "UPDATE `order` SET Ord_State = true WHERE Ord_ID = ? ";
+		String query = "UPDATE `order` SET Ord_State = True WHERE Ord_ID = ? ";
 		PreparedStatement os;
 		os = conn.prepareStatement(query);
 		os.setInt(1, o.getOrderID());
@@ -290,17 +290,18 @@ public final class DBNinja {
 		 * 
 		 */
 		ArrayList<Order> orderList = new ArrayList<Order>();
-		String query = "SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID\n"
-				+ "FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID\n"
-				+ "union\n"
-				+ "SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID\n"
-				+ "FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID\n"
-				+ "union\n"
-				+ "SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID\n"
-				+ "FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID order by `order`.Ord_ID;";
-		Statement stmt = conn.createStatement();
-		ResultSet rset = stmt.executeQuery(query);
-		
+		ResultSet rset;
+		Statement stmt;
+		if(!openOnly) {
+			String query = "SELECT * FROM (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union  SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A where Ord_State IS False order by Ord_ID;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+		}
+		else {
+			String query = "SELECT * FROM (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union  SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A where Ord_State IS True order by Ord_ID;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+		}
 		while(rset.next())
 		{
 			orderList.add(new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State")));
@@ -319,7 +320,7 @@ public final class DBNinja {
 		 */
 		connect_to_db();
 		String query = "(SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) order by Ord_ID;" ;
-		Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		Statement stmt = conn.prepareStatement(query);
 		ResultSet rset = stmt.executeQuery(query);
 		rset.last();
 		Order order = new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"));	
@@ -327,7 +328,47 @@ public final class DBNinja {
 		return order;
 	}
 	
+	public static Order getOrderById(int id) throws SQLException, IOException{
+		/*
+		 * Query the database for the LAST order added
+		 * then return an Order object for that order.
+		 * NOTE...there should ALWAYS be a "last order"!
+		 */
+		connect_to_db();
+
+		
+		PreparedStatement os;
+		ResultSet rset;
+		String query2;
+		query2 = "select * from (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A where Ord_ID = ? order by Ord_ID;" ;
+		os = conn.prepareStatement(query2);
+		os.setInt(1, id);
+		rset = os.executeQuery();
+		rset.next();
+		Order order = new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"));	
+		conn.close();
+		return order;
+	}
+	
 	public static int getOrderId() throws SQLException, IOException{
+		/*
+		 * Query the database for the LAST order added
+		 * then return an Order object for that order.
+		 * NOTE...there should ALWAYS be a "last order"!
+		 */
+		connect_to_db();
+		String query = "select * from `order`";
+		PreparedStatement os;
+		Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
+		
+		ResultSet rset = stmt.executeQuery(query);
+		rset.last();
+		int orderId = rset.getInt("Ord_ID");
+		conn.close();
+		return orderId;
+	}
+	
+	public static int getOrders() throws SQLException, IOException{
 		/*
 		 * Query the database for the LAST order added
 		 * then return an Order object for that order.
@@ -368,11 +409,10 @@ public final class DBNinja {
 		connect_to_db();
 		
 		String query;
-		query = "Select * FROM `order' WHERE Ord_Date= ?;";
+		query = "SELECT * FROM (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union  SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A WHERE Ord_Date>= ? order by Ord_ID;";
 		PreparedStatement os = conn.prepareStatement(query);
 		os.setString(1, date);
 		ResultSet rset = os.executeQuery();
-		rset.next();
 		ArrayList<Order> orderList = new ArrayList<Order>();
 		while(rset.next())
 		{
@@ -491,13 +531,13 @@ public final class DBNinja {
 		return t;
 	}
 
-	public static void upDateCostAndPrice(Pizza p,double cost, double price) throws SQLException, IOException {
+	public static void upDateCostAndPrice(Pizza p) throws SQLException, IOException {
 		connect_to_db();
 		PreparedStatement os;
 		String query = "UPDATE pizza SET Pizza_Cost = ?, Pizza_Price = ? WHERE Pizza_ID = ?;";
 		os = conn.prepareStatement(query);
-		os.setDouble(1, cost);
-		os.setDouble(2, price);
+		os.setDouble(1, p.getBusPrice());
+		os.setDouble(2, p.getCustPrice());
 		os.setInt(3, p.getPizzaID());
 		os.execute();
 		conn.close();
@@ -507,7 +547,7 @@ public final class DBNinja {
 	public static void upDateCostAndPrice(Order o) throws SQLException, IOException {
 		connect_to_db();
 		PreparedStatement os;
-		String query = "UPDATE order SET Order_Cost = ?, Order_Price = ? WHERE Order_ID = ?;";
+		String query = "UPDATE `order` SET Ord_Cost = ?, Ord_Price = ? WHERE Ord_ID = ?;";
 		os = conn.prepareStatement(query);
 		os.setDouble(1, o.getBusPrice());
 		os.setDouble(2, o.getCustPrice());
@@ -518,8 +558,14 @@ public final class DBNinja {
 
 	public static void addToInventory(Topping t, double quantity) throws SQLException, IOException {
 		connect_to_db();
-		String query = "UPDATE topping SET Curr_Inv_Level = ? WHERE T_ID=?;";
+		String query = "SELECT Curr_Inv_Level FROM topping WHERE T_ID=?;";
 		PreparedStatement os;
+		os = conn.prepareStatement(query);
+		os.setInt(1, t.getTopID());
+		ResultSet rset = os.executeQuery();
+		rset.next();
+		quantity += rset.getDouble("Curr_Inv_Level");
+		query = "UPDATE topping SET Curr_Inv_Level = ? WHERE T_ID=?;";
 		os = conn.prepareStatement(query);
 		os.setDouble(1, quantity);
 		os.setInt(2, t.getTopID());
@@ -576,7 +622,7 @@ public final class DBNinja {
 		 */
 		ArrayList<Topping> toppingList = getToppingList();
 		for(Topping topping : toppingList) {
-			System.out.println(topping.getTopID()+" "+topping.getTopName()+" "+topping.getLgAMT());
+			System.out.println(topping.getTopID()+" "+topping.getTopName()+" "+topping.getCurINVT());
 		}
 		conn.close();
 		//DO NOT FORGET TO CLOSE YOUR CONNECTION
@@ -624,7 +670,7 @@ public final class DBNinja {
 		
 		while(rset.next())
 		{
-			System.out.println(rset.getString("Size")+" "+rset.getInt("Crust")+" "+rset.getDouble("Profit")+" "+rset.getString("OrderMonth")); 
+			System.out.println(rset.getString("Size")+"  "+rset.getString("Crust")+"  "+rset.getDouble("Profit")+"  "+rset.getString("Order Month")); 
 		}
 		conn.close();
 		
@@ -651,7 +697,7 @@ public final class DBNinja {
 		
 		while(rset.next())
 		{
-			System.out.println(rset.getString("CustomerType")+" "+rset.getString("OrderMonth")+" "+rset.getDouble("ToatlOrderPrice")+" "+rset.getDouble("TotalOrderCost")+" "+rset.getDouble("Profit")); 
+			System.out.println(rset.getString("CustomerType")+" "+rset.getString("Order Month")+" "+rset.getDouble("TotalOrderPrice")+" "+rset.getDouble("TotalOrderCost")+" "+rset.getDouble("Profit")); 
 		}
 		conn.close();		
 		//DO NOT FORGET TO CLOSE YOUR CONNECTION	

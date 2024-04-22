@@ -4,7 +4,7 @@ select * from  discount;
 select * from  customer;
 select * from  `order`;
 select * from  base_price;
-select * from  pick_up;
+select * from  pick_up; 
 select * from dine_in;
 select * from delivery;
 select * from pizza;

@@ -7,6 +7,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -35,9 +36,6 @@ public class Menu {
 	public static void main(String[] args) throws SQLException, IOException {
 
 		System.out.println("Welcome to Pizzas-R-Us!");
-
-        LocalTime now = LocalTime.now();
-        System.out.println("Current time: " + now);
 		int menu_option = 0;
 
 		// present a menu of options and take their selection
@@ -105,8 +103,8 @@ public class Menu {
 		int tableNumber = 0;
 		int orderType;
 		int cus_ID = 0;
-		int orderCost = 0;
-		int orderPrice = 0;
+		double orderCost = 0;
+		double orderPrice = 0;
 
 		System.out.println(
 				"Is this order for: \n1.) Dine-in\n2.) Pick-up\n3.) Delivery\nEnter the number of your choice:");
@@ -128,12 +126,12 @@ public class Menu {
 			else {
 				if(orderType == 2) {
 					EnterCustomer();
-					String[] fullName = custName.split(" ");
-					Customer c = new Customer(0,fullName[0], fullName[1], custPhone);
-					DBNinja.addCustomer(c);
 				}
 				else {
-					EnterCustomer();
+					System.out.println("What is this customer's name (first <space> last");
+					custName = reader.readLine();
+					System.out.println("What is this customer's phone number (##########) (No dash/space)");
+					custPhone = reader.readLine();
 					System.out.println("What is the House/Apt Number for this order? (e.g., 111)");
 					String house = reader.readLine();
 					System.out.println("What is the Street for this order? (e.g., Smile Street)");
@@ -186,6 +184,7 @@ public class Menu {
 			Pizza p = buildPizza(DBNinja.getOrderId());
 			orderCost += p.getBusPrice();
 			orderPrice += p.getCustPrice();
+			
 			o.setBusPrice(orderCost);
 			o.setCustPrice(orderPrice);
 			System.out.println(
@@ -207,7 +206,9 @@ public class Menu {
 			int temp = Integer.parseInt(reader.readLine());
 			if(temp == -1)
 				break;
-			o.addDiscount(DBNinja.findDiscountByName(getDiscountName(temp)));
+			Discount d = DBNinja.findDiscountByName(getDiscountName(temp));
+			o.addDiscount(d);
+			DBNinja.useOrderDiscount(o, d);
 		}
 		DBNinja.upDateCostAndPrice(o);
 		
@@ -243,6 +244,9 @@ public class Menu {
 		custName = reader.readLine();
 		System.out.println("What is this customer's phone number (##########) (No dash/space)");
 		custPhone = reader.readLine();
+		String[] fullName = custName.split(" ");
+		Customer c = new Customer(0,fullName[0], fullName[1], custPhone);
+		DBNinja.addCustomer(c);
 
 	}
 	
@@ -332,12 +336,87 @@ public class Menu {
 		// User Input Prompts...
 		System.out.println(
 				"Would you like to:\n(a) display all orders [open or closed]\n(b) display all open orders\n(c) display all completed [closed] orders\n(d) display orders since a specific date");
-		System.out.println("What is the date you want to restrict by? (FORMAT= YYYY-MM-DD)");
-		System.out.println("I don't understand that input, returning to menu");
-		System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
-		System.out.println("Incorrect entry, returning to menu.");
-		System.out.println("No orders to display, returning to menu.");
-
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String option = reader.readLine();
+		if(option.equals("a")) {
+			while(true) {
+				displayOrders(true);
+				displayOrders(false);
+				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+				int choice = Integer.parseInt(reader.readLine());
+				if(choice == -1) {
+					break;
+				}
+				System.out.println(DBNinja.getOrderById(choice)+"\n");
+			}
+		}
+		else if(option.equals("b")) {
+			while(true) {
+				displayOrders(false);
+				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+				int choice = Integer.parseInt(reader.readLine());
+				if(choice == -1) {
+					break;
+				}
+				System.out.println(DBNinja.getOrderById(choice)+"\n");
+			}
+		}
+		else if(option.equals("c")) {
+			while(true) {
+				displayOrders(true);
+				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+				int choice = Integer.parseInt(reader.readLine());
+				if(choice == -1) {
+					break;
+				}
+				System.out.println(DBNinja.getOrderById(choice)+"\n");
+			}
+		}
+		else {
+			System.out.println("What is the date you want to restrict by? (FORMAT= YYYY-MM-DD)");
+			String date = reader.readLine();
+			String format = "yyyy-MM-dd";
+			DateTimeFormatter formatter = DateTimeFormatter.ofPattern(format);
+	        try {
+	            LocalDate.parse(date, formatter);
+	        } catch (DateTimeParseException e) {
+	        	System.out.println("I don't understand that input, returning to menu");
+	        	return;
+	        }
+	        ArrayList<Order> orderList = DBNinja.getOrdersByDate(date);
+	        for(Order order : orderList) {
+				String cust_name = "INSTORE customer";
+				if(!order.getOrderType().equals("dine-in")) {
+					cust_name = DBNinja.getCustomerName(order.getCustID());
+				}
+				boolean isComplete;
+				if(order.getIsComplete() == 0) {
+					isComplete = false;						
+				}
+				else {
+					isComplete = true;
+				}
+				System.out.println("OrderID="+order.getOrderID()+" | "+"Customer Name= "+cust_name+"," +"OrderType= "+order.getOrderType()+"," +"IsComplete ="+isComplete);
+	        }   
+		}
+	}
+	
+	private static void displayOrders(boolean complete) throws SQLException, IOException {
+		ArrayList<Order> orderList = DBNinja.getOrders(complete);
+		for(Order order : orderList) {
+			String cust_name = "INSTORE customer";
+			if(!order.getOrderType().equals("dine-in")) {
+				cust_name = DBNinja.getCustomerName(order.getCustID());
+			}
+			boolean isComplete;
+			if(order.getIsComplete() == 0) {
+				isComplete = false;						
+			}
+			else {
+				isComplete = true;
+			}
+			System.out.println("OrderID="+order.getOrderID()+" | "+"Customer Name= "+cust_name+"," +"OrderType= "+order.getOrderType()+"," +"IsComplete ="+isComplete);
+		}
 	}
 
 	// When an order is completed, we need to make sure it is marked as complete
@@ -353,17 +432,18 @@ public class Menu {
 		 */
 
 		// User Input Prompts...
-		System.out.println("There are no open orders currently... returning to menu...");
+		//System.out.println("There are no open orders currently... returning to menu...");
+		displayOrders(false);
 		System.out.println("Which order would you like mark as complete? Enter the OrderID: ");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		int option = Integer.parseInt(reader.readLine());
+		DBNinja.completeOrder(DBNinja.getOrderById(option));
 		System.out.println("Incorrect entry, not an option");
 
 	}
 
 	public static void ViewInventoryLevels() throws SQLException, IOException {
-		/*
-		 * Print the inventory. Display the topping ID, name, and current inventory
-		 */
-
+		DBNinja.printInventory();
 	}
 
 	public static void AddInventory() throws SQLException, IOException {
@@ -373,8 +453,14 @@ public class Menu {
 		 */
 
 		// User Input Prompts...
+		ViewInventoryLevels();
 		System.out.println("Which topping do you want to add inventory to? Enter the number: ");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		int toppingId = Integer.parseInt(reader.readLine());
 		System.out.println("How many units would you like to add? ");
+		int units = Integer.parseInt(reader.readLine());
+		Topping topping = DBNinja.findToppingByName(DBNinja.findToppingNameByID(toppingId));
+		DBNinja.addToInventory(topping, units);
 		System.out.println("Incorrect entry, not an option");
 
 	}
@@ -551,11 +637,13 @@ public class Menu {
 			if(opt == -1) {
 				break;
 			}
-			pizza.addDiscounts(DBNinja.findDiscountByName(getDiscountName(opt)));
+			Discount d = DBNinja.findDiscountByName(getDiscountName(opt));
+			pizza.addDiscounts(d);
+			DBNinja.usePizzaDiscount(pizza, d);
 		}
 		pizza.setBusPrice(cost);
 		pizza.setCustPrice(price);
-		DBNinja.upDateCostAndPrice(pizza, cost, price);
+		DBNinja.upDateCostAndPrice(pizza);
 		return pizza;
 	}
 
@@ -569,8 +657,20 @@ public class Menu {
 		// User Input Prompts...
 		System.out.println(
 				"Which report do you wish to print? Enter\n(a) ToppingPopularity\n(b) ProfitByPizza\n(c) ProfitByOrderType:");
-		System.out.println("I don't understand that input... returning to menu...");
-
+		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
+		String option = reader.readLine();
+		if(option.equals("a")) {
+			DBNinja.printToppingPopReport();
+		}
+		else if(option.equals("b")) {
+			DBNinja.printProfitByPizzaReport();
+		}
+		else if(option.equals("c")) {
+			DBNinja.printProfitByOrderType();
+		}
+		else {
+			System.out.println("I don't understand that input... returning to menu...");
+		}
 	}
 
 	// Prompt - NO CODE SHOULD TAKE PLACE BELOW THIS LINE
