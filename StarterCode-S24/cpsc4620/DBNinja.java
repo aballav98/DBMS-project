@@ -344,7 +344,9 @@ public final class DBNinja {
 		os = conn.prepareStatement(query2);
 		os.setInt(1, id);
 		rset = os.executeQuery();
-		rset.next();
+		if(!rset.next()) {
+			return null;
+		}
 		Order order = new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"));	
 		conn.close();
 		return order;
