@@ -114,7 +114,6 @@ public class Menu {
 		orderType = Integer.parseInt(option);
 		if(orderType == 2 || orderType == 3) { 
 			System.out.println("Is this order for an existing customer? Answer y/n: ");
-			reader = new BufferedReader(new InputStreamReader(System.in));
 			String isExisting = reader.readLine();
 			if(isExisting.equals("y")) {
 				System.out.println("Here's a list of the current customers: ");
@@ -317,6 +316,22 @@ public class Menu {
 		}
 		return discountName;
 	}
+	
+    public static boolean isPositiveInteger(String str) {
+        // Check if the string is empty or contains non-digit characters
+        if (str == null || str.isEmpty() || !str.matches("\\d+")) {
+            return false;
+        }
+
+        // Convert the string to a number and check if it's positive
+        try {
+            int num = Integer.parseInt(str);
+            return num >= 0;
+        } catch (NumberFormatException e) {
+            // If parsing fails (e.g., due to overflow), return false
+            return false;
+        }
+    }
 
 	// View any orders that are not marked as completed
 	public static void ViewOrders() throws SQLException, IOException {
@@ -339,38 +354,43 @@ public class Menu {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String option = reader.readLine();
 		if(option.equals("a")) {
-			while(true) {
-				displayOrders(true);
-				displayOrders(false);
-				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
-				int choice = Integer.parseInt(reader.readLine());
-				if(choice == -1) {
-					break;
-				}
-				System.out.println(DBNinja.getOrderById(choice)+"\n");
+
+			displayOrders(true);
+			displayOrders(false);
+			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+			String c = reader.readLine();
+			if(c.equals("-1")) {
+				return;
 			}
+			if(!isPositiveInteger(c)) {
+				System.out.println("Incorrect entry. Returning to the menu");
+				return;
+			}
+			int choice = Integer.parseInt(c);
+			Order o = DBNinja.getOrderById(choice);
+			if(o != null)
+				System.out.println(o);
+			else {
+				System.out.println("Incorrect entry. Returning to the menu");
+			}				
 		}
 		else if(option.equals("b")) {
-			while(true) {
-				displayOrders(false);
-				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
-				int choice = Integer.parseInt(reader.readLine());
-				if(choice == -1) {
-					break;
-				}
-				System.out.println(DBNinja.getOrderById(choice)+"\n");
+			displayOrders(false);
+			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+			int choice = Integer.parseInt(reader.readLine());
+			if(choice == -1) {
+				return;
 			}
+			System.out.println(DBNinja.getOrderById(choice)+"\n");
 		}
 		else if(option.equals("c")) {
-			while(true) {
-				displayOrders(true);
-				System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
-				int choice = Integer.parseInt(reader.readLine());
-				if(choice == -1) {
-					break;
-				}
-				System.out.println(DBNinja.getOrderById(choice)+"\n");
+			displayOrders(true);
+			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+			int choice = Integer.parseInt(reader.readLine());
+			if(choice == -1) {
+				return;
 			}
+			System.out.println(DBNinja.getOrderById(choice)+"\n");		
 		}
 		else {
 			System.out.println("What is the date you want to restrict by? (FORMAT= YYYY-MM-DD)");
@@ -401,6 +421,7 @@ public class Menu {
 		}
 	}
 	
+
 	private static void displayOrders(boolean complete) throws SQLException, IOException {
 		ArrayList<Order> orderList = DBNinja.getOrders(complete);
 		for(Order order : orderList) {

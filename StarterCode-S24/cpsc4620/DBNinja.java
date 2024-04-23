@@ -320,7 +320,7 @@ public final class DBNinja {
 		 */
 		connect_to_db();
 		String query = "(SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) order by Ord_ID;" ;
-		Statement stmt = conn.prepareStatement(query);
+		Statement stmt = conn.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_READ_ONLY);
 		ResultSet rset = stmt.executeQuery(query);
 		rset.last();
 		Order order = new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"));	
