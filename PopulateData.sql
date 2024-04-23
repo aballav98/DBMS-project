@@ -264,29 +264,21 @@ values (4, 1 , False);
 
 
 INSERT INTO customer 
-(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
-Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Andrew', 'Wilkes-Krier', 8642545861, null,
- '115 Party Blvd', 'SC', '29621');
+(Cus_Fname, Cus_Lname, Cus_PhoneNumber)
+VALUES ('Andrew', 'Wilkes-Krier', 8642545861);
  
  INSERT INTO customer 
-(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
-Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Matt', 'Engers', 8644749953, null,
- null, null, null);
+(Cus_Fname, Cus_Lname, Cus_PhoneNumber)
+VALUES ('Matt', 'Engers', 8644749953);
  
  INSERT INTO customer 
-(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
-Cus_Street_Address,  Cus_State, Cus_ZipCode)
-VALUES ('Frank', 'Turner', 8642328944, null,
- '6745 Wessex St Anderson' ,'SC' , '29621');
+(Cus_Fname, Cus_Lname, Cus_PhoneNumber)
+VALUES ('Frank', 'Turner', 8642328944);
  
  
  INSERT INTO customer 
-(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Email_Id, 
-Cus_Street_Address, Cus_State, Cus_ZipCode)
-VALUES ('Milo', 'Auckerman', 8648785679, null,
- '8879 Suburban Home, Anderson,' ,'SC' , '29621');
+(Cus_Fname, Cus_Lname, Cus_PhoneNumber)
+VALUES ('Milo', 'Auckerman', 8648785679);
  
  
 INSERT INTO pick_up 
@@ -409,7 +401,7 @@ INSERT INTO pizza_topping
 values (12, 13 , False);
 
 INSERT INTO delivery
-VALUES (4,1);
+VALUES (4,1,'115 Party Blvd', 'SC', '29621');
 
 INSERT INTO order_discount VALUES(6,4);
 
@@ -473,7 +465,7 @@ values (14, 13 , True);
 
 
 INSERT INTO delivery
-VALUES (6,3);
+VALUES (6,3,'6745 Wessex St Anderson' ,'SC' , '29621');
 
 
 
@@ -503,7 +495,7 @@ INSERT INTO pizza_topping
 values (16, 1, True);
 
 INSERT INTO delivery
-VALUES (7,4);
+VALUES (7,4,'8879 Suburban Home, Anderson' ,'SC' , '29621');
 
 INSERT INTO order_discount VALUES (1,7);
 

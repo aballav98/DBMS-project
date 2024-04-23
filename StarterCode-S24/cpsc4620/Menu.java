@@ -112,6 +112,30 @@ public class Menu {
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		String option = reader.readLine();
 		orderType = Integer.parseInt(option);
+		String ordType = "";
+        LocalDate today = LocalDate.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        String formattedDate = today.format(formatter);
+        Order o = null;
+        String house;
+        String street;
+        String city;
+        String state;
+        String zip;
+		switch(orderType) {
+			case 1:
+				ordType = "dine-in";
+				o = new DineinOrder(0, 0, formattedDate, 0, 0, 0, 0);
+				break;
+			case 2:
+				ordType = "Pick-Up";
+				o = new PickupOrder(0, 0, formattedDate, 0, 0, 0, 0);
+				break;
+			case 3:
+				ordType = "delivery";
+				o = new DeliveryOrder(0, 0, formattedDate, 0, 0, 0, null);
+				break;
+		}
 		if(orderType == 2 || orderType == 3) { 
 			System.out.println("Is this order for an existing customer? Answer y/n: ");
 			String isExisting = reader.readLine();
@@ -121,63 +145,60 @@ public class Menu {
 				System.out.println("Which customer is this order for? Enter ID Number:");
 				option = reader.readLine();
 				cus_ID = Integer.parseInt(option);
-			}
-			else {
-				if(orderType == 2) {
-					EnterCustomer();
-				}
-				else {
-					System.out.println("What is this customer's name (first <space> last");
-					custName = reader.readLine();
-					System.out.println("What is this customer's phone number (##########) (No dash/space)");
-					custPhone = reader.readLine();
+				if(orderType == 3) {
 					System.out.println("What is the House/Apt Number for this order? (e.g., 111)");
-					String house = reader.readLine();
+					house = reader.readLine();
 					System.out.println("What is the Street for this order? (e.g., Smile Street)");
-					String street = reader.readLine();
+					street = reader.readLine();
 					street = house + street;
 					System.out.println("What is the City for this order? (e.g., Greenville)");
-					String city = reader.readLine();
+					city = reader.readLine();
 					System.out.println("What is the State for this order? (e.g., SC)");
-					String state = reader.readLine();
+					state = reader.readLine();
 					System.out.println("What is the Zip Code for this order? (e.g., 20605)");
-					String zip = reader.readLine();
-					String[] fullName = custName.split(" ");
-					Customer c = new Customer(0,fullName[0], fullName[1], custPhone);
-					c.setAddress(street, city, state, zip);
-					DBNinja.addCustomer(c);
+					zip = reader.readLine();
+					DeliveryOrder p = (DeliveryOrder)o;
+					p.setAddress(street+","+city+","+ state+","+ zip);
 				}
-				cus_ID = DBNinja.getLatestCustomer();
 			}
-			
+			else {
+					if(orderType == 2) {
+						EnterCustomer();
+					}
+					else {
+						EnterCustomer();
+						System.out.println("What is the House/Apt Number for this order? (e.g., 111)");
+						house = reader.readLine();
+						System.out.println("What is the Street for this order? (e.g., Smile Street)");
+						street = reader.readLine();
+						street = house + street;
+						System.out.println("What is the City for this order? (e.g., Greenville)");
+						city = reader.readLine();
+						System.out.println("What is the State for this order? (e.g., SC)");
+						state = reader.readLine();
+						System.out.println("What is the Zip Code for this order? (e.g., 20605)");
+						zip = reader.readLine();
+						DeliveryOrder d = (DeliveryOrder)o;
+						d.setAddress(street+","+city+","+ state+","+ zip);
+					}
+					cus_ID = DBNinja.getLatestCustomer();
+			}
 		}
-		
 		else {
 		//System.out.println("ERROR: I don't understand your input for: Is this order an existing customer?");
 			System.out.println("What is the table number for this order?");
 			option = reader.readLine();
 			tableNumber = Integer.parseInt(option);
+			DineinOrder p = (DineinOrder)o;
+			p.setTableNum(tableNumber);
+		}
 
-		}
-		String ordType = "";
-		switch(orderType) {
-			case 1:
-				ordType = "dine-in";
-				break;
-			case 2:
-				ordType = "Pick-Up";
-				break;
-			case 3:
-				ordType = "delivery";
-				break;
-		}
-        LocalDate today = LocalDate.now();
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        String formattedDate = today.format(formatter);
-        Order o = new Order(0, cus_ID, ordType, formattedDate, 0, 0, 0);
+
+		o.setCustID(cus_ID);
+		o.setOrderType(ordType);
 		DBNinja.addOrder(o);
 		o.setOrderID(DBNinja.getOrderId());
-		DBNinja.fillOrderType(o, tableNumber);
+		DBNinja.fillOrderType(o);
 		while(true) {
 			System.out.println("Let's build a pizza!");
 			Pizza p = buildPizza(DBNinja.getOrderId());
@@ -458,8 +479,12 @@ public class Menu {
 		System.out.println("Which order would you like mark as complete? Enter the OrderID: ");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		int option = Integer.parseInt(reader.readLine());
+		Order o = DBNinja.getOrderById(option);
+		if(o == null) {
+			System.out.println("I don't understand that input... returning to menu...");
+			return;
+		}
 		DBNinja.completeOrder(DBNinja.getOrderById(option));
-		System.out.println("Incorrect entry, not an option");
 
 	}
 
@@ -659,6 +684,10 @@ public class Menu {
 				break;
 			}
 			Discount d = DBNinja.findDiscountByName(getDiscountName(opt));
+			if(d == null) {
+				System.out.println("Discount not found");
+				continue;
+			}
 			pizza.addDiscounts(d);
 			DBNinja.usePizzaDiscount(pizza, d);
 		}

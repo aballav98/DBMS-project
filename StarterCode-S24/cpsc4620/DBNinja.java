@@ -29,9 +29,9 @@ public final class DBNinja {
 	private static Connection conn;
 
 	// Change these variables to however you record dine-in, pick-up and delivery, and sizes and crusts
-	public final static String pickup = "pickup";
+	public final static String pickup = "Pick-Up";
 	public final static String delivery = "delivery";
-	public final static String dine_in = "dinein";
+	public final static String dine_in = "dine-in";
 
 	public final static String size_s = "Small";
 	public final static String size_m = "Medium";
@@ -76,29 +76,40 @@ public final class DBNinja {
 		conn.close();
 	}
 	
-	public static void fillOrderType(Order o, int tableNo) throws SQLException, IOException {
+	public static void fillOrderType(Order o) throws SQLException, IOException {
 		connect_to_db();
 		PreparedStatement os;
 		String query = "";
-		if(o.getOrderType().equals("delivery")) {
-			query = "insert into delivery values(?,?)";
+		connect_to_db();
+		if(o.getOrderType().equals(dine_in)) {
+			DineinOrder d = (DineinOrder)o;
+			query = "Insert into dine_in values(?,?); ";
 			os = conn.prepareStatement(query);
 			os.setInt(1, o.getOrderID());
-			os.setInt(2, o.getCustID());
+			os.setInt(2, d.getTableNum());
 			os.execute();
 		}
-		else if(o.getOrderType().equals("Pick-Up")) {
-			query = "insert into pick_up values(?,?)";
+		else if(o.getOrderType().equals(delivery)) {
+			DeliveryOrder d = (DeliveryOrder)o;
+			query = "Insert into delivery values(?,?,?,?,?); ";
 			os = conn.prepareStatement(query);
 			os.setInt(1, o.getOrderID());
+			String[] address = d.getAddress().split(",");
+			String street = address[0];
+			String state = address[2];
+			String zip = address[3];
 			os.setInt(2, o.getCustID());
+			os.setString(3, street);
+			os.setString(4, state);
+			os.setString(5, zip);
 			os.execute();
 		}
 		else {
-			query = "insert into dine_in values(?,?)";
+			PickupOrder p = (PickupOrder)o;
+			query = "Insert into pick_up values(?,?); ";
 			os = conn.prepareStatement(query);
 			os.setInt(1, o.getOrderID());
-			os.setInt(2, tableNo);
+			os.setInt(2, p.getCustID());
 			os.execute();
 		}
 		conn.close();
@@ -233,28 +244,12 @@ public final class DBNinja {
 		 * This method adds a new customer to the database.
 		 * 
 		 */
-		String query = "INSERT into customer(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Street_Address, Cus_State, Cus_ZipCode ) values(?,?,?,?,?,?);";
+		String query = "INSERT into customer(Cus_Fname, Cus_Lname, Cus_PhoneNumber ) values(?,?,?);";
 		PreparedStatement os;
 		os = conn.prepareStatement(query);
 		os.setString(1, c.getFName());
 		os.setString(2, c.getLName());
 		os.setString(3, c.getPhone());
-		if(c.getAddress() != null) {
-			query = "INSERT into customer(Cus_Fname, Cus_Lname, Cus_PhoneNumber, Cus_Street_Address, Cus_State, Cus_ZipCode ) values(?,?,?,?,?,?);";
-			String[] lines = c.getAddress().split("/n");
-			String street = lines[0];
-			String city = lines[1];
-			String state = lines[2];
-			String zip = lines[3];
-			os.setString(4, street);
-			os.setString(5, city+","+state);
-			os.setString(6, zip);
-		}
-		else {
-			os.setString(4, null);
-			os.setString(5, null);
-			os.setString(6, null);
-		}
 		os.execute();
 		conn.close();	
 		//DO NOT FORGET TO CLOSE YOUR CONNECTION
@@ -450,7 +445,9 @@ public final class DBNinja {
 		os = conn.prepareStatement(query);
 		os.setString(1, name);
 		rset = os.executeQuery();
-		rset.next();
+		if(!rset.next()) {
+			return null;
+		}
 		Discount d;
 		if(rset.getDouble("Amount_Off") == 0)
 			d = new Discount(rset.getInt("Discount_ID"), rset.getString("Discount_Name"), rset.getDouble("Percent_Off"), true);
@@ -476,19 +473,22 @@ public final class DBNinja {
 		return customerList;
 	}
 
-	public static Customer findCustomerByPhone(String phoneNumber) throws SQLException{
+	public static Customer findCustomerByPhone(String phoneNumber) throws SQLException, IOException{
 		/*
 		 * Query the database for a customer using a phone number.
 		 * If found, then return a Customer object for the customer.
 		 * If it's not found....then return null
 		 *  
 		 */
+		connect_to_db();
 		String query;
 		query = "Select * FROM customer WHERE Cus_PhoneNumber = ?;";
 		PreparedStatement os = conn.prepareStatement(query);
 		os.setString(1, phoneNumber);
 		ResultSet rset = os.executeQuery();
-		rset.next();
+		if(!rset.next()) {
+			return null;
+		}
 		Customer customer = new Customer(rset.getInt("Cus_ID"), rset.getString("Cus_FName"), rset.getString("Cus_LName"), rset.getString("Cus_PhoneNumber"));
 		return customer;
 	}

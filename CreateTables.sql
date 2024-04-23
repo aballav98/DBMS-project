@@ -24,11 +24,7 @@ create table customer(
 Cus_ID int not null primary key AUTO_INCREMENT,
 Cus_Fname varchar(20),
 Cus_Lname varchar(20),
-Cus_PhoneNumber varchar(10),
-Cus_Email_Id varchar(15),
-Cus_Street_Address varchar(40),
-Cus_State char(20),
-Cus_ZipCode varchar(6) 
+Cus_PhoneNumber varchar(10)
 );
 
 
@@ -73,6 +69,9 @@ CREATE TABLE delivery (
   Ord_ID INT NOT NULL,
   Cus_ID INT  NULL,
   PRIMARY KEY (Ord_ID),
+  Cus_Street_Address varchar(40),
+  Cus_State char(20),
+  Cus_ZipCode varchar(6), 
   FOREIGN KEY (Ord_ID) REFERENCES `order` (Ord_ID) ON UPDATE CASCADE ON DELETE CASCADE,
   FOREIGN KEY (Cus_ID) REFERENCES customer (Cus_ID) ON UPDATE CASCADE ON DELETE CASCADE
 );
