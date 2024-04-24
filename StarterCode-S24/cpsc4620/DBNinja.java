@@ -288,23 +288,82 @@ public final class DBNinja {
 		ResultSet rset;
 		Statement stmt;
 		if(!openOnly) {
-			String query = "SELECT * FROM (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union  SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A where Ord_State IS False order by Ord_ID;";
+			String query = "SELECT * FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID;";
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery(query);
+			while(rset.next())
+			{
+				orderList.add(new DineinOrder(rset.getInt("Ord_ID"),0, rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getInt("Table_No")));
+			}
+			query = "SELECT * FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+			while(rset.next())
+			{
+					orderList.add(new DeliveryOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getString("Cus_Street_Address")+" "+rset.getString("Cus_State")+" "+rset.getString("Cus_ZipCode")));
+			}
+			query = "SELECT * FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+			while(rset.next())
+			{
+				orderList.add(new PickupOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), 1, rset.getInt("Ord_State")));
+			}	
 		}
 		else {
-			String query = "SELECT * FROM (SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID union SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, Cus_ID FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID union  SELECT `order`.Ord_ID, Ord_Date, Ord_State, Ord_Type, Ord_Price, Ord_Cost, null as Cus_ID FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID) AS A where Ord_State IS True order by Ord_ID;";
+			String query = "SELECT * FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID where Ord_State=False;";
 			stmt = conn.createStatement();
 			rset = stmt.executeQuery(query);
-		}
-		while(rset.next())
-		{
-			orderList.add(new Order(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Type"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State")));
+			while(rset.next())
+			{
+				orderList.add(new DineinOrder(rset.getInt("Ord_ID"),0, rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getInt("Table_No")));
+			}
+			query = "SELECT * FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID where Ord_State=False;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+			while(rset.next())
+			{
+					orderList.add(new DeliveryOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getString("Cus_Street_Address")+" "+rset.getString("Cus_State")+" "+rset.getString("Cus_ZipCode")));
+			}
+			query = "SELECT * FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID where Ord_State=False;";
+			stmt = conn.createStatement();
+			rset = stmt.executeQuery(query);
+			while(rset.next())
+			{
+				orderList.add(new PickupOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), 1, rset.getInt("Ord_State")));
+			}	
 		}
 		conn.close();
 		return orderList;		
 		//DO NOT FORGET TO CLOSE YOUR CONNECTION
-
+	}
+	
+	public static ArrayList<Order> getClosedOrders() throws SQLException, IOException {
+		connect_to_db();
+		String query = "SELECT * FROM `order` join dine_in on `order`.Ord_ID = dine_in.Ord_ID where Ord_State=True;";
+		Statement stmt = conn.createStatement();
+		ResultSet rset = stmt.executeQuery(query);
+		ArrayList<Order> orderList = new ArrayList<Order>();
+		while(rset.next())
+		{
+			orderList.add(new DineinOrder(rset.getInt("Ord_ID"),0, rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getInt("Table_No")));
+		}
+		query = "SELECT * FROM `order` join delivery on `order`.Ord_ID = delivery.Ord_ID where Ord_State=True;";
+		stmt = conn.createStatement();
+		rset = stmt.executeQuery(query);
+		while(rset.next())
+		{
+			orderList.add(new DeliveryOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), rset.getInt("Ord_State"), rset.getString("Cus_Street_Address")+" "+rset.getString("Cus_State")+" "+rset.getString("Cus_ZipCode")));
+		}
+		query = "SELECT * FROM `order` join pick_up on `order`.Ord_ID = pick_up.Ord_ID where Ord_State=True;";
+		stmt = conn.createStatement();
+		rset = stmt.executeQuery(query);
+		while(rset.next())
+		{
+			orderList.add(new PickupOrder(rset.getInt("Ord_ID"),rset.getInt("Cus_ID"), rset.getString("Ord_Date"), rset.getDouble("Ord_Price"),rset.getDouble("Ord_Cost"), 1, rset.getInt("Ord_State")));
+		}
+		conn.close();
+		return orderList;
 	}
 	
 	public static Order getLastOrder() throws SQLException, IOException{

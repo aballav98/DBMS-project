@@ -28,6 +28,7 @@ import java.util.List;
  */
 
 public class Menu {
+	
 
 	public static BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 	private static String custName = "";
@@ -376,8 +377,7 @@ public class Menu {
 		String option = reader.readLine();
 		if(option.equals("a")) {
 
-			displayOrders(true);
-			displayOrders(false);
+			displayOrders(1);
 			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
 			String c = reader.readLine();
 			if(c.equals("-1")) {
@@ -396,7 +396,7 @@ public class Menu {
 			}				
 		}
 		else if(option.equals("b")) {
-			displayOrders(false);
+			displayOrders(2);
 			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
 			int choice = Integer.parseInt(reader.readLine());
 			if(choice == -1) {
@@ -405,7 +405,7 @@ public class Menu {
 			System.out.println(DBNinja.getOrderById(choice)+"\n");
 		}
 		else if(option.equals("c")) {
-			displayOrders(true);
+			displayOrders(3);
 			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
 			int choice = Integer.parseInt(reader.readLine());
 			if(choice == -1) {
@@ -438,26 +438,30 @@ public class Menu {
 					isComplete = true;
 				}
 				System.out.println("OrderID="+order.getOrderID()+" | "+"Customer Name= "+cust_name+"," +"OrderType= "+order.getOrderType()+"," +"IsComplete ="+isComplete);
-	        }   
+	        }
+			System.out.println("Which order would you like to see in detail? Enter the number (-1 to exit): ");
+			int choice = Integer.parseInt(reader.readLine());
+			if(choice == -1) {
+				return;
+			}
+			System.out.println(DBNinja.getOrderById(choice)+"\n");
 		}
 	}
 	
 
-	private static void displayOrders(boolean complete) throws SQLException, IOException {
-		ArrayList<Order> orderList = DBNinja.getOrders(complete);
+	private static void displayOrders(int option) throws SQLException, IOException {
+		ArrayList<Order> orderList = null;
+		if(option == 1) {
+			orderList = DBNinja.getOrders(false);
+		}
+		else if(option == 2) {
+			orderList = DBNinja.getOrders(true);
+		}
+		else {
+			orderList = DBNinja.getClosedOrders();
+		}
 		for(Order order : orderList) {
-			String cust_name = "INSTORE customer";
-			if(!order.getOrderType().equals("dine-in")) {
-				cust_name = DBNinja.getCustomerName(order.getCustID());
-			}
-			boolean isComplete;
-			if(order.getIsComplete() == 0) {
-				isComplete = false;						
-			}
-			else {
-				isComplete = true;
-			}
-			System.out.println("OrderID="+order.getOrderID()+" | "+"Customer Name= "+cust_name+"," +"OrderType= "+order.getOrderType()+"," +"IsComplete ="+isComplete);
+			System.out.println(order);
 		}
 	}
 
@@ -475,7 +479,7 @@ public class Menu {
 
 		// User Input Prompts...
 		//System.out.println("There are no open orders currently... returning to menu...");
-		displayOrders(false);
+		displayOrders(1);
 		System.out.println("Which order would you like mark as complete? Enter the OrderID: ");
 		BufferedReader reader = new BufferedReader(new InputStreamReader(System.in));
 		int option = Integer.parseInt(reader.readLine());
