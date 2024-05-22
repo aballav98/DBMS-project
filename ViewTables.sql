@@ -11,5 +11,5 @@ select * from pizza;
 select * from order_discount;
 select * from pizza_discount;
 select * from pizza_topping ;
-//select * from topping;
+//select * from topping
 
